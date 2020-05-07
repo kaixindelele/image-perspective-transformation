@@ -276,16 +276,16 @@ def mouse(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         pts1.append([x, y])
         xy = "%d,%d" % (x, y)
-        cv2.circle(image, (x, y), 1, (255, 255, 255), thickness = -1)
+        cv2.circle(image, (x, y), 4, (0, 255, 255), thickness = -1)
         cv2.putText(image, xy, (x, y), cv2.FONT_HERSHEY_PLAIN,
-                    1.0, (255, 255, 255), thickness = 1)
+                    1.0, (0, 255, 255), thickness = 2)
         cv2.imshow("image", image)   
     if event == cv2.EVENT_RBUTTONDOWN:
         pts2.append([x, y])
         xy = "%d,%d" % (x, y)
-        cv2.circle(image, (x, y), 1, (255, 0, 255), thickness = -1)
+        cv2.circle(image, (x, y), 4, (255, 0, 255), thickness = -1)
         cv2.putText(image, xy, (x, y), cv2.FONT_HERSHEY_PLAIN,
-                    1.0, (255, 0, 255), thickness = 1)
+                    1.0, (255, 0, 255), thickness = 2)
         cv2.imshow("image", image)    
 
 def pic_perspective():    
@@ -311,21 +311,23 @@ def pic_perspective():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     print("pts1:", pts1)
-    pts1 = np.float32(pts1)
+    pts1 = np.float32(pts1[:4])
     print("pts2:", pts2)
-    pts2 = np.float32(pts2)
+    pts2 = np.float32(pts2[:4])
+
+    assert len(pts1)==4, "每个只允许四个点"    
   
     # 生成透视变换矩阵
     M = cv2.getPerspectiveTransform(pts1, pts2)
     # 进行透视变换
-    dst = cv2.warpPerspective(image, M, (image.shape[0], image.shape[1]))
+    dst = cv2.warpPerspective(image, M, (image.shape[1], image.shape[0]))
     cv2.imwrite('dst.jpg', dst)
     # matplotlib默认以RGB通道显示，所以需要用[:, :, ::-1]翻转一下
     plt.subplot(121), plt.imshow(image[:, :, ::-1]), plt.title('input')
     plt.subplot(122), plt.imshow(dst[:, :, ::-1]), plt.title('output')
     plt.show()
 
-    tkinter.messagebox.showinfo('提示', '透视变换的图片处理完毕!')
+    # tkinter.messagebox.showinfo('提示', '透视变换的图片处理完毕!')
     return dst
 
 
